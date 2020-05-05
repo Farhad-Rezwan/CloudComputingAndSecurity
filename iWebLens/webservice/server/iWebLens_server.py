@@ -87,6 +87,7 @@ def get_predection(image, net, LABELS, COLORS):
     confidences = []
     classIDs = []
     tex = []
+    tex2 = []
 
     # loop over each of the layer outputs
     for output in layerOutputs:
@@ -137,13 +138,34 @@ def get_predection(image, net, LABELS, COLORS):
             # draw a bounding box rectangle and label on the image
             color = [int(c) for c in COLORS[classIDs[i]]]
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-            text2 = "{}".format(LABELS[classIDs[i]])
+            text =  "{}".format(LABELS[classIDs[i]])  
+            text2 = "{:.4f}".format(confidences[i])
+
             print(boxes)
             tex.append(text)
+            tex2.append(text2)
             print(classIDs)
             cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-    return tex
+    return tex,tex2
+#def create_object(list):
+#    allList = []
+#    listLabel = list[0]
+#    listPred = list[1]
+#    for i in range(len(listLabel)):
+#        allList.append({1,2,3,4,5})
+#    return allList
+
+def create_object(list):
+    allList = []
+    listLabel = list[0]
+    listPred = list[1]
+    for i in range(len(listLabel)):
+        obj = {
+                'label:' : listLabel[i],
+                'pred:' : listPred[i]
+                }
+        allList.append(obj)
+    return allList
 
 labelsPath = "y_config/coco.names"
 cfgpath = "y_config/yolov3-tiny.cfg"
@@ -155,6 +177,7 @@ nets = load_model(CFG, Weights)
 Colors = get_colors(Lables)
 # Initialize the Flask application
 app = Flask(__name__)
+
 
 
 # route http posts to this method
@@ -175,7 +198,8 @@ def main():
     ##image = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
     ##np_img = Image.fromarray(image)
     ##img_encoded = image_to_byte_array(np_img)
-    return jsonify({'result':res})
+    
+    return jsonify({'result':create_object(res)})
 
     # start flask app
 
