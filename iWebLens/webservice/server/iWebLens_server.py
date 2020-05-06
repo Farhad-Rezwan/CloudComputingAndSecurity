@@ -48,7 +48,7 @@ def get_config(config_path):
 
 def load_model(configpath, weightspath):
     # load our YOLO object detector trained on COCO dataset (80 classes)
-    print("[INFO] loading YOLO from disk...")
+#    print("[INFO] loading YOLO from disk...")
     net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
     return net
 
@@ -75,11 +75,11 @@ def get_predection(image, net, LABELS, COLORS):
     net.setInput(blob)
     start = time.time()
     layerOutputs = net.forward(ln)
-    print(layerOutputs)
+#    print(layerOutputs)
     end = time.time()
 
     # show timing information on YOLO
-    print("[INFO] YOLO took {:.6f} seconds".format(end - start))
+#    print("[INFO] YOLO took {:.6f} seconds".format(end - start))
 
     # initialize our lists of detected bounding boxes, confidences, and
     # class IDs, respectively
@@ -96,9 +96,9 @@ def get_predection(image, net, LABELS, COLORS):
             # extract the class ID and confidence (i.e., probability) of
             # the current object detection
             scores = detection[5:]
-            print(scores)
+#            print(scores)
             classID = np.argmax(scores)
-            print(classID)
+#            print(classID)
             confidence = scores[classID]
 
             # filter out weak predictions by ensuring the detected
@@ -139,13 +139,13 @@ def get_predection(image, net, LABELS, COLORS):
             color = [int(c) for c in COLORS[classIDs[i]]]
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
             text =  "{}".format(LABELS[classIDs[i]])  
-            text2 = "{:.4f}".format(confidences[i])
+            text2 = "{:.2f}".format(confidences[i])
 
             print(boxes)
             tex.append(text)
             tex2.append(text2)
             print(classIDs)
-            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+#            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     return tex,tex2
 #def create_object(list):
 #    allList = []
@@ -161,8 +161,8 @@ def create_object(list):
     listPred = list[1]
     for i in range(len(listLabel)):
         obj = {
-                'label:' : listLabel[i],
-                'pred:' : listPred[i]
+                'label' : listLabel[i],
+                'prediction' : listPred[i]
                 }
         allList.append(obj)
     return allList
@@ -173,7 +173,7 @@ wpath = "y_config/yolov3-tiny.weights"
 Lables = get_labels(labelsPath)
 CFG = get_config(cfgpath)
 Weights = get_weights(wpath)
-nets = load_model(CFG, Weights)
+#nets = load_model(CFG, Weights)
 Colors = get_colors(Lables)
 # Initialize the Flask application
 app = Flask(__name__)
@@ -189,6 +189,7 @@ def main():
     img = Image.open(io.BytesIO(img))
     npimg = np.array(img)
     image = npimg.copy()
+    nets = load_model(CFG, Weights)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     res = get_predection(image, nets, Lables, Colors)
     # image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
@@ -199,7 +200,7 @@ def main():
     ##np_img = Image.fromarray(image)
     ##img_encoded = image_to_byte_array(np_img)
     
-    return jsonify({'result':create_object(res)})
+    return jsonify({'Objects':create_object(res)})
 
     # start flask app
 
