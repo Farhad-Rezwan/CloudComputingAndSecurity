@@ -181,7 +181,7 @@ app = Flask(__name__)
 
 
 # route http posts to this method
-@app.route('/api/test', methods=['POST'])
+@app.route('/api/object_detection', methods=['POST'])
 def main():
     # load our input image and grab its spatial dimensions
     # image = cv2.imread("./test1.jpg")
