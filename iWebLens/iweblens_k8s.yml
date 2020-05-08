@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-svc
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30001
+  selector:
+    app: iweblens
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: iweblens-server
+  labels:
+    app: iweblens
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iweblens
+  template:
+    metadata:
+      labels:
+        app: iweblens
+    spec:
+      containers:
+      - image: farhadrezwan/iweblens:1.1.4
+        name: ubuntu-ctr
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_DEBUG
+          value: "1"
+        resources:
+          limits:
+            cpu: "0.5"
+          requests:
+            cpu: "0.5" 
