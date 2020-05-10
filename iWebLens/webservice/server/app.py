@@ -15,7 +15,7 @@ from PIL import Image
 
 # construct the argument parse and parse the arguments
 
-confthres = 0.3
+confthres = 0.2
 nmsthres = 0.1
 yolo_path = './'
 
