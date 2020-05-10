@@ -29,7 +29,7 @@ spec:
         app: iweblens
     spec:
       containers:
-      - image: farhadrezwan/iweblens:1.1.4
+      - image: farhadrezwan/iweblens:latest
         name: ubuntu-ctr
         ports:
         - containerPort: 5000

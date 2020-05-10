@@ -52,14 +52,6 @@ def load_model(configpath, weightspath):
     net = cv2.dnn.readNetFromDarknet(configpath, weightspath)
     return net
 
-
-def image_to_byte_array(image: Image):
-    imgByteArr = io.BytesIO()
-    image.save(imgByteArr, format='PNG')
-    imgByteArr = imgByteArr.getvalue()
-    return imgByteArr
-
-
 def get_predection(image, net, LABELS, COLORS):
     (H, W) = image.shape[:2]
 
@@ -75,7 +67,6 @@ def get_predection(image, net, LABELS, COLORS):
     net.setInput(blob)
     start = time.time()
     layerOutputs = net.forward(ln)
-#    print(layerOutputs)
     end = time.time()
 
     # show timing information on YOLO
@@ -96,9 +87,7 @@ def get_predection(image, net, LABELS, COLORS):
             # extract the class ID and confidence (i.e., probability) of
             # the current object detection
             scores = detection[5:]
-#            print(scores)
             classID = np.argmax(scores)
-#            print(classID)
             confidence = scores[classID]
 
             # filter out weak predictions by ensuring the detected
@@ -139,7 +128,7 @@ def get_predection(image, net, LABELS, COLORS):
             color = [int(c) for c in COLORS[classIDs[i]]]
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
             text =  "{}".format(LABELS[classIDs[i]])  
-            text2 = "{:.2f}".format(confidences[i])
+            text2 = "{:.2f}".format(confidences[i]*100)
 
             print(boxes)
             tex.append(text)
@@ -147,13 +136,6 @@ def get_predection(image, net, LABELS, COLORS):
             print(classIDs)
 #            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     return tex,tex2
-#def create_object(list):
-#    allList = []
-#    listLabel = list[0]
-#    listPred = list[1]
-#    for i in range(len(listLabel)):
-#        allList.append({1,2,3,4,5})
-#    return allList
 
 def create_object(list):
     allList = []
@@ -162,7 +144,7 @@ def create_object(list):
     for i in range(len(listLabel)):
         obj = {
                 'label' : listLabel[i],
-                'prediction' : listPred[i]
+                'accuracy' : listPred[i]
                 }
         allList.append(obj)
     return allList
@@ -173,8 +155,8 @@ wpath = "y_config/yolov3-tiny.weights"
 Lables = get_labels(labelsPath)
 CFG = get_config(cfgpath)
 Weights = get_weights(wpath)
-#nets = load_model(CFG, Weights)
 Colors = get_colors(Lables)
+
 # Initialize the Flask application
 app = Flask(__name__)
 
@@ -185,6 +167,7 @@ app = Flask(__name__)
 def main():
     # load our input image and grab its spatial dimensions
     # image = cv2.imread("./test1.jpg")
+
     img = request.files["image"].read()
     img = Image.open(io.BytesIO(img))
     npimg = np.array(img)
@@ -192,13 +175,6 @@ def main():
     nets = load_model(CFG, Weights)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     res = get_predection(image, nets, Lables, Colors)
-    # image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-    # show the output image
-    # cv2.imshow("Image", res)
-    # cv2.waitKey()
-    ##image = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
-    ##np_img = Image.fromarray(image)
-    ##img_encoded = image_to_byte_array(np_img)
     
     return jsonify({'Objects':create_object(res)})
 
