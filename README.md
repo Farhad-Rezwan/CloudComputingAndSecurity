@@ -47,14 +47,70 @@ sudo tar -C /usr/local -xzf go1.15.5.linux-amd64.tar.gz
 set Environment Variable
 export PATH=$PATH:/usr/local/go/bin
 
-## Step: 3
+## Step: 4
 Install Kind (Kubernetes in docker)
-```GO111MODULE="on" go get sigs.k8s.io/kind@v0.9.0 ```
+```
+GO111MODULE="on" go get sigs.k8s.io/kind@v0.9.0 
+```
 source: https://github.com/kubernetes-sigs/kind
 After download move go to the /usr/local/go/bin directory
-``` sudo mv go/bin/kind /usr/local/go/bin/```
+``` 
+sudo mv go/bin/kind /usr/local/go/bin/
+```
 By doing so, you have successfully installed kind. to check
-``` kind version ```
+``` 
+kind version 
+```
+## Step: 5
+Install Kubectl (Kubernetes command-line tool)
+```
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+```
+to confirm installation
+```
+kubectl version --client
+```
 
+## Step: 6
+### Create a cluster
+
+#### clone the repo or download 
+``` 
+git clone https://github.com/Farhad-Rezwan/CloudComputingAndSecurity.git
+```
+create cluster
+```
+cd CloudComputingAndSecurity
+kind create cluster --config kindconfig.yml
+```
+to confirm cluster is created
+```
+kind get clusters
+```
+to confirm configuraation of nodes:
+```
+kubectl get nodes
+
+```
+## Step: 7
+### Loading Docker image in the cluster:
+```
+cd iWebLens/webservice/server/
+docker build -t my-custom-image .
+kind load docker-image my-custom-image:latest
+cd ../../k8sconfig/
+kubectl apply -f iweblens_k8s.yml
+```
+
+## Step: 9
+### setup instance security group and allow port 30001 to your IP address. (make sure HTTP port is also open inbound)
+Download the client folder from the repo in your local machine and run
+```
+python3 iWebLens_client.py  inputfolder  http://IP_ADDRESS_OF_INSTANCE:30001/api/object_detection 4
+```
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ZgcaXSQksMQ/0.jpg)](https://www.youtube.com/watch?v=ZgcaXSQksMQ)
+
+##
